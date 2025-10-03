@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tómbola con Animación Central</title>
+<title>Tómbola Panam Desktop</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
 <style>
   body {
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    height: 100vh;
-    margin: 0;
+    align-items: center;
+    justify-content: flex-start;
     background: url("panamito pantallas v01.png") no-repeat center center;
-    background-size: cover;
+    background-size: contain; /* Mostrar toda la imagen al 100% */
+    background-color: #000;   /* Color de relleno en los bordes */
+    background-attachment: fixed;
     overflow-x: hidden;
     overflow-y: auto;
   }
@@ -34,6 +37,7 @@
     position: relative;
     max-width: 90vw;
     max-height: 90vw;
+    margin-top: 20px;
   }
   canvas {
     display: block;
@@ -117,8 +121,8 @@
 </head>
 <body>
 
-
- 
+  <h1>Tómbola Física</h1>
+  <p>Presiona <b>espacio</b> para sacar una bolita.</p>
 
   <div id="contenedor-simulacion"></div>
   <div id="numero-animado"></div>
