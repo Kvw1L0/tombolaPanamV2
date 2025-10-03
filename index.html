@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tómbola Panam Desktop</title>
+<title>Tómbola Panam Formato Ancho</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
 <style>
   body {
@@ -15,10 +15,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    background: url("panamito pantallas v01.png") no-repeat center center;
-    background-size: contain; /* Mostrar toda la imagen al 100% */
-    background-color: #000;   /* Color de relleno en los bordes */
-    background-attachment: fixed;
+    background: url("panamito pantallas v01.png") no-repeat top center;
+    background-size: 100% auto;  /* Imagen ocupa todo el ancho, altura proporcional */
+    background-color: #000;      /* Relleno en bordes si sobra */
     overflow-x: hidden;
     overflow-y: auto;
   }
