@@ -3,231 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tómbola Panam Formato Ancho</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+<title>Tómbola Panam Fullscreen 16:9</title>
 <style>
-  body {
+  * {
     margin: 0;
-    height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body, html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: #000;
+  }
+
+  /* Contenedor que mantiene relación 16:9 */
+  .background-wrapper {
+    position: fixed;
+    top: 0; left: 0;
     width: 100vw;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+  }
+
+  .background-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* siempre llena la pantalla */
+    aspect-ratio: 16 / 9; 
+  }
+
+  /* Contenido encima */
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: flex-start;
-    background: url("panamito pantallas v01.png") no-repeat top center;
-    background-size: 100% auto;  /* Imagen ocupa todo el ancho, altura proporcional */
-    background-color: #000;      /* Relleno en bordes si sobra */
-    overflow-x: hidden;
-    overflow-y: auto;
+    align-items: center;
+    color: #fff;
+    z-index: 10;
   }
 
   h1, p {
+    margin-top: 20px;
     background: rgba(0,0,0,0.5);
     padding: 10px 20px;
     border-radius: 10px;
-    color: #fff;
-    margin: 5px 0;
     text-align: center;
-  }
-
-  #contenedor-simulacion {
-    border-radius: 50%;
-    position: relative;
-    max-width: 90vw;
-    max-height: 90vw;
-    margin-top: 20px;
-  }
-  canvas {
-    display: block;
-    border-radius: 50%;
-    width: 100% !important;
-    height: auto !important;
-  }
-
-  #tablero {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
-    padding: 10px;
-    background-color: rgba(52, 73, 94, 0.9);
-    border-radius: 10px;
-    min-height: 50px;
-    width: 90%;
-    max-width: 700px;
-  }
-  .bolita-tablero {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 15px 15px, #87CEEB, #007bff);
-    border: 1px solid #0056b3;
-    color: white;
-    text-shadow: 1px 1px 2px black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 8px;
-    font-weight: bold;
-    font-size: 1.2em;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-    transform: scale(0);
-    animation: pop-in 0.4s ease-out forwards;
-  }
-  @keyframes pop-in {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
-  }
-
-  #mensajeFinal {
-    margin-top: 15px;
-    font-weight: bold;
-    color: #e74c3c;
-    font-size: 1.3em;
-  }
-
-  /* Animación central */
-  #numero-animado {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50px 50px, #fff8b0, #ffcc00);
-    border: 4px solid #b38f00;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 5em;
-    font-weight: bold;
-    z-index: 1000;
-    transform: translate(-50%, -50%) scale(0);
-    visibility: hidden;
-  }
-  #numero-animado.animar {
-    visibility: visible;
-    animation: zoom-efecto 1.5s ease-in-out forwards;
-  }
-  @keyframes zoom-efecto {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
   }
 </style>
 </head>
 <body>
 
-  <h1>Tómbola Física</h1>
-  <p>Presiona <b>espacio</b> para sacar una bolita.</p>
-
-  <div id="contenedor-simulacion"></div>
-  <div id="numero-animado"></div>
-  <div id="tablero"></div>
-  <div id="mensajeFinal"></div>
-
-  <script>
-    const contenedor = document.getElementById('contenedor-simulacion');
-    const numeroAnimadoEl = document.getElementById('numero-animado');
-    const diametroTombola = 450;
-    const radioBolita = 20;
-    const VELOCIDAD_CONSTANTE = 6;
-
-    const { Engine, Render, Runner, World, Bodies, Body, Events, Vector } = Matter;
-
-    const engine = Engine.create();
-    const world = engine.world;
-    world.gravity.y = 0;
-
-    const render = Render.create({
-        element: contenedor, engine: engine,
-        options: { width: diametroTombola, height: diametroTombola, wireframes: false, background: 'transparent' }
-    });
-
-    const radioTombola = diametroTombola / 2;
-    for (let i = 0; i < 64; i++) {
-        const angle = (i / 64) * Math.PI * 2;
-        const x = radioTombola + (radioTombola - 10) * Math.cos(angle);
-        const y = radioTombola + (radioTombola - 10) * Math.sin(angle);
-        const pared = Bodies.rectangle(x, y, 50, 20, { isStatic: true, angle: angle, render: { fillStyle: '#17202a' }, friction: 0, restitution: 1 });
-        World.add(world, pared);
-    }
-
-    const bolitasEnSimulacion = [];
-    for (let i = 1; i <= 20; i++) {
-        const bolita = Bodies.circle( radioTombola + (Math.random() - 0.5) * 150, radioTombola + (Math.random() - 0.5) * 150, radioBolita,
-            { restitution: 1, friction: 0, frictionAir: 0, render: { fillStyle: `hsl(${i * 18}, 80%, 60%)` }, label: i.toString() });
-        Body.setVelocity(bolita, { x: (Math.random() - 0.5) * VELOCIDAD_CONSTANTE, y: (Math.random() - 0.5) * VELOCIDAD_CONSTANTE });
-        bolitasEnSimulacion.push(bolita);
-    }
-    World.add(world, bolitasEnSimulacion);
-
-    Events.on(engine, 'afterUpdate', () => {
-      bolitasEnSimulacion.forEach(bolita => {
-        const velocidadActual = Vector.magnitude(bolita.velocity);
-        if (velocidadActual > 0) {
-          Body.setVelocity(bolita, Vector.mult(Vector.normalise(bolita.velocity), VELOCIDAD_CONSTANTE));
-        }
-      });
-    });
-
-    const bolitasSeleccionadas = [];
-    const tablero = document.getElementById('tablero');
-    const mensajeFinal = document.getElementById('mensajeFinal');
-    let sorteoEnCurso = false;
-
-    function seleccionarBolita() {
-      if (sorteoEnCurso || bolitasEnSimulacion.length === 0) {
-        if (bolitasEnSimulacion.length === 0) {
-            mensajeFinal.textContent = "¡Todas las bolitas han sido sorteadas!";
-        }
-        return;
-      }
-      sorteoEnCurso = true;
-      mensajeFinal.textContent = "";
-
-      const indiceAleatorio = Math.floor(Math.random() * bolitasEnSimulacion.length);
-      const bolitaGanadora = bolitasEnSimulacion[indiceAleatorio];
-      const numeroGanador = parseInt(bolitaGanadora.label, 10);
-
-      World.remove(world, bolitaGanadora);
-      bolitasEnSimulacion.splice(indiceAleatorio, 1);
-
-      numeroAnimadoEl.textContent = numeroGanador;
-      numeroAnimadoEl.classList.add('animar');
-
-      numeroAnimadoEl.addEventListener('animationend', () => {
-        bolitasSeleccionadas.push(numeroGanador);
-        actualizarTablero();
-        numeroAnimadoEl.classList.remove('animar');
-        sorteoEnCurso = false;
-      }, { once: true });
-    }
-
-    function actualizarTablero() {
-      bolitasSeleccionadas.sort((a, b) => a - b);
-      tablero.innerHTML = '';
-      bolitasSeleccionadas.forEach(numero => {
-        const bolitaElemento = document.createElement('div');
-        bolitaElemento.classList.add('bolita-tablero');
-        bolitaElemento.textContent = numero;
-        tablero.appendChild(bolitaElemento);
-      });
-    }
-
-    Render.run(render);
-    const runner = Runner.create();
-    Runner.run(runner, engine);
-
-    window.addEventListener('keydown', (event) => {
-      if (event.code === 'Space') {
-        event.preventDefault();
-        seleccionarBolita();
-      }
-    });
-  </script>
+<div class="background-wrapper">
+  <!-- Imagen ya corregida (sin líneas blancas) -->
+  <img src="panamito_pantallas_v01_limpia.png" alt="Fondo Panam">
+  
+  <div class="overlay">
+    <h1>Tómbola Panam</h1>
+    <p>Presiona <b>espacio</b> para sacar una bolita.</p>
+    <!-- Aquí va tu canvas o el resto del juego -->
+  </div>
+</div>
 
 </body>
 </html>
